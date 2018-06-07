@@ -9,7 +9,8 @@ var SHADOW_CLOUD_COLOR = 'rgba(0, 0, 0, 0.7)';
 var CLOUD_POINT_X = 100;
 var CLOUD_POINT_Y = 10;
 
-var MESSAGES = ['Ура вы победили!', 'Список результатов:'];
+var ORIGIN_MESSAGE = 'Ура вы победили!\nСписок результатов:';
+var TEXT_LINES = ORIGIN_MESSAGE.split('\n');
 var TEXT_OFFSET = 30;
 var TEXT_COLOR = 'rgb(0, 0, 0)';
 var FONT = '16px PT Mono';
@@ -22,46 +23,33 @@ var START_POINT_Y_RENDER_CHART = CLOUD_POINT_Y + 230;
 var COLOR_COLUMN_CURRENT_PLAYER = 'rgba(255, 0, 0, 1)';
 var PATTERN_COLOR_OTHER_PLAYER = 'rgba(0, 0, 255, .';
 
-var renderCloud = function (
-    ctx,
-    cloudColor,
-    startPointX,
-    startPointY,
-    width,
-    height
-) {
+var renderCloud = function (ctx, cloudColor, startPointX, startPointY, width, height) {
+  var DIRECTION_X = [1, 1, 0, 0];
+  var DIRECTION_Y = [0, 1, 1, 0];
+
+  var CURVE_POINTS = [
+    [width / 2, startPointY + CURVE_OFFSET],
+    [width + startPointX - CURVE_OFFSET, height / 2],
+    [width / 2, height + startPointY - CURVE_OFFSET],
+    [startPointX + CURVE_OFFSET, height / 2]
+  ];
+
   ctx.fillStyle = cloudColor;
 
   ctx.beginPath();
   ctx.moveTo(startPointX, startPointY);
 
-  ctx.quadraticCurveTo(
-      (width) / 2 + startPointX,
-      startPointY + CURVE_OFFSET,
-      startPointX + width,
-      startPointY
-  );
-
-  ctx.quadraticCurveTo(
-      (width + startPointX) - CURVE_OFFSET,
-      (height / 2) + startPointY,
-      startPointX + width,
-      startPointY + height
-  );
-
-  ctx.quadraticCurveTo(
-      (width) / 2 + startPointX,
-      height + startPointY - CURVE_OFFSET,
-      startPointX,
-      startPointY + height
-  );
-
-  ctx.quadraticCurveTo(
-      startPointX + CURVE_OFFSET,
-      height / 2 + startPointY - CURVE_OFFSET,
-      startPointX,
-      startPointY
-  );
+  var x;
+  var y;
+  var curveX;
+  var curveY;
+  for (var i = 0; i < DIRECTION_X.length; i++) {
+    x = startPointX + width * DIRECTION_X[i];
+    y = startPointY + height * DIRECTION_Y[i];
+    curveX = CURVE_POINTS[i][0];
+    curveY = CURVE_POINTS[i][1];
+    ctx.quadraticCurveTo(curveX, curveY, x, y);
+  }
 
   ctx.fill();
 };
@@ -69,12 +57,15 @@ var renderCloud = function (
 var renderText = function (ctx, messages, startPointX, startPointY) {
   ctx.fillStyle = TEXT_COLOR;
   ctx.font = FONT;
+  ctx.textBaseline = 'alphabetic';
   for (var i = 0; i < messages.length; i++) {
-    ctx.fillText(messages[i], startPointX, startPointY + FONT_SIZE * i);
+    var x = startPointX;
+    var y = startPointY + FONT_SIZE * i;
+    ctx.fillText(messages[i], x, y);
   }
 };
 
-var indexMaxPlayerTime = function (times) {
+var getIndexMaxValueFromArray = function (times) {
   var maxTime = times[0];
   var indexOfMaxTime = 0;
   for (var i = 0; i < times.length; i++) {
@@ -88,7 +79,7 @@ var indexMaxPlayerTime = function (times) {
 
 var renderBarChart = function (ctx, names, times) {
 
-  var indexMaxTime = indexMaxPlayerTime(times);
+  var indexMaxTime = getIndexMaxValueFromArray(times);
 
   ctx.font = FONT;
 
@@ -116,30 +107,11 @@ var renderBarChart = function (ctx, names, times) {
 };
 
 window.renderStatistics = function (ctx, names, times) {
-  renderCloud(
-      ctx,
-      SHADOW_CLOUD_COLOR,
-      CLOUD_POINT_X + SHADOW_CLOUD_OFFSET,
-      CLOUD_POINT_Y + SHADOW_CLOUD_OFFSET,
-      CLOUD_WIDTH,
-      CLOUD_HEIGHT
-  );
+  var shadowStartX = CLOUD_POINT_X + SHADOW_CLOUD_OFFSET;
+  var shadowStartY = CLOUD_POINT_Y + SHADOW_CLOUD_OFFSET;
 
-  renderCloud(
-      ctx,
-      CLOUD_COLOR,
-      CLOUD_POINT_X,
-      CLOUD_POINT_Y,
-      CLOUD_WIDTH,
-      CLOUD_HEIGHT
-  );
-
-  renderText(
-      ctx,
-      MESSAGES,
-      CLOUD_POINT_X + TEXT_OFFSET,
-      CLOUD_POINT_Y + TEXT_OFFSET
-  );
-
+  renderCloud(ctx, SHADOW_CLOUD_COLOR, shadowStartX, shadowStartY, CLOUD_WIDTH, CLOUD_HEIGHT);
+  renderCloud(ctx, CLOUD_COLOR, CLOUD_POINT_X, CLOUD_POINT_Y, CLOUD_WIDTH, CLOUD_HEIGHT);
+  renderText(ctx, TEXT_LINES, CLOUD_POINT_X + TEXT_OFFSET, CLOUD_POINT_Y + TEXT_OFFSET);
   renderBarChart(ctx, names, times);
 };
