@@ -21,33 +21,61 @@ var MAX_HEIGHT_COLUMN = 150;
 var GAP_COLUMN = 50;
 var START_POINT_Y_RENDER_CHART = CLOUD_POINT_Y + 230;
 var COLOR_COLUMN_CURRENT_PLAYER = 'rgba(255, 0, 0, 1)';
-var PATTERN_COLOR_OTHER_PLAYER = 'rgba(0, 0, 255, .';
+var PATTERN_COLOR_OTHER_PLAYER = 'rgba(0, 0, 255, ';
+
+var getIndexMaxValueFromArray = function (times) {
+  var maxTime = times[0];
+  var indexOfMaxTime = 0;
+  for (var i = 0; i < times.length; i++) {
+    if (maxTime < times[i]) {
+      maxTime = times[i];
+      indexOfMaxTime = i;
+    }
+  }
+  return indexOfMaxTime;
+};
+
+var getRandomValueTo = function (max) {
+  var randomValue = Math.ceil(Math.random() * max);
+  return randomValue;
+};
+
+var calculateCurvePoints = function (startPointX, startPointY, width, height, curveOffset) {
+  var curvePoints = [];
+  var x1 = width / 2;
+  var y1 = startPointY + curveOffset;
+  curvePoints.push([x1, y1]);
+
+  var x2 = width + startPointX - curveOffset;
+  var y2 = height / 2;
+  curvePoints.push([x2, y2]);
+
+  var x3 = width / 2;
+  var y3 = height + startPointY - curveOffset;
+  curvePoints.push([x3, y3]);
+
+  var x4 = startPointX + curveOffset;
+  var y4 = height / 2;
+  curvePoints.push([x4, y4]);
+
+  return curvePoints;
+};
 
 var renderCloud = function (ctx, cloudColor, startPointX, startPointY, width, height) {
   var DIRECTION_X = [1, 1, 0, 0];
   var DIRECTION_Y = [0, 1, 1, 0];
 
-  var CURVE_POINTS = [
-    [width / 2, startPointY + CURVE_OFFSET],
-    [width + startPointX - CURVE_OFFSET, height / 2],
-    [width / 2, height + startPointY - CURVE_OFFSET],
-    [startPointX + CURVE_OFFSET, height / 2]
-  ];
-
+  var curvePoints = calculateCurvePoints(startPointX, startPointY, width, height, CURVE_OFFSET);
   ctx.fillStyle = cloudColor;
 
   ctx.beginPath();
   ctx.moveTo(startPointX, startPointY);
 
-  var x;
-  var y;
-  var curveX;
-  var curveY;
   for (var i = 0; i < DIRECTION_X.length; i++) {
-    x = startPointX + width * DIRECTION_X[i];
-    y = startPointY + height * DIRECTION_Y[i];
-    curveX = CURVE_POINTS[i][0];
-    curveY = CURVE_POINTS[i][1];
+    var x = startPointX + width * DIRECTION_X[i];
+    var y = startPointY + height * DIRECTION_Y[i];
+    var curveX = curvePoints[i][0];
+    var curveY = curvePoints[i][1];
     ctx.quadraticCurveTo(curveX, curveY, x, y);
   }
 
@@ -65,18 +93,6 @@ var renderText = function (ctx, messages, startPointX, startPointY) {
   }
 };
 
-var getIndexMaxValueFromArray = function (times) {
-  var maxTime = times[0];
-  var indexOfMaxTime = 0;
-  for (var i = 0; i < times.length; i++) {
-    if (maxTime < times[i]) {
-      maxTime = times[i];
-      indexOfMaxTime = i;
-    }
-  }
-  return indexOfMaxTime;
-};
-
 var renderBarChart = function (ctx, names, times) {
 
   var indexMaxTime = getIndexMaxValueFromArray(times);
@@ -92,7 +108,8 @@ var renderBarChart = function (ctx, names, times) {
     if (names[i] === 'Вы') {
       ctx.fillStyle = COLOR_COLUMN_CURRENT_PLAYER;
     } else {
-      ctx.fillStyle = PATTERN_COLOR_OTHER_PLAYER + Math.ceil(Math.random() * 10) + ')';
+      var transparency = getRandomValueTo(10) / 10;
+      ctx.fillStyle = PATTERN_COLOR_OTHER_PLAYER + transparency + ')';
     }
     ctx.fillRect(startColumnX, startColumnY, WIDTH_COLUMN, heightColumn);
 
