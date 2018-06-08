@@ -22,19 +22,24 @@ var eyesColors = [
 
 var QUANTITY_RANDOM_WIZARD = 4;
 
+var getRandomNumberExcluding = function (max) {
+  var randomValue = Math.floor(Math.random() * max);
+  return randomValue;
+};
+
 var createWizards = function (quantity) {
   var wizards = [];
   for (var i = 0; i < quantity; i++) {
-    var nameValue = names[getRandomValueTo(names.length - 1)]
-                    + ' '
-                    + surnames[getRandomValueTo(surnames.length - 1)];
-    var coatColorValue = coatColors[getRandomValueTo(coatColors.length - 1)];
-    var eyesColorValue = eyesColors[getRandomValueTo(coatColors.length - 1)];
+    var name = names[getRandomNumberExcluding(names.length)]
+    var surname = surnames[getRandomNumberExcluding(surnames.length)];
+    var wizardName = name + ' ' + surname;
+    var wizardCoatColor = coatColors[getRandomNumberExcluding(coatColors.length)];
+    var wizardEyesColor = eyesColors[getRandomNumberExcluding(coatColors.length)];
 
     var wizard = {
-      name: nameValue,
-      coatColor: coatColorValue,
-      eyesColor: eyesColorValue
+      name: wizardName,
+      coatColor: wizardCoatColor,
+      eyesColor: wizardEyesColor
     };
     wizards.push(wizard);
   }
