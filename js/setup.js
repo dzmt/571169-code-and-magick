@@ -33,9 +33,16 @@ var QUANTITY_RANDOM_WIZARD = 4;
 var ESC_KEYCODE = 27;
 var ENTER_KEYCODE = 13;
 
+var TOP_CSS_PROPERTY = 'top';
+var LEFT_CSS_PROPERTY = 'left';
+
 var getRandomNumberExcluding = function (max) {
   var randomValue = Math.floor(Math.random() * max);
   return randomValue;
+};
+
+var resetStyle = function (element, property) {
+  element.style[property] = '';
 };
 
 var createWizards = function (quantity) {
@@ -111,7 +118,10 @@ var setupCloseEscPressHandler = function (evt) {
 };
 
 var openSetup = function () {
-  removeClass('setup', 'hidden');
+  var setup = document.querySelector('.setup');
+  setup.classList.remove('hidden');
+  resetStyle(setup, TOP_CSS_PROPERTY);
+  resetStyle(setup, LEFT_CSS_PROPERTY);
   document.addEventListener('keydown', setupCloseEscPressHandler);
 };
 
